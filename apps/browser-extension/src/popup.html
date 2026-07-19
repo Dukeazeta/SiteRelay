@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SiteRelay</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, "Segoe UI Variable", ui-sans-serif, system-ui, sans-serif;
+        --canvas: #0b0c0e;
+        --surface: #14161a;
+        --line: #2a2d33;
+        --ink: #f4f5ef;
+        --muted: #989da7;
+        --signal: #d8ff52;
+        --danger: #ff7979;
+      }
+      * { box-sizing: border-box; }
+      body { width: 390px; margin: 0; background: var(--canvas); color: var(--ink); }
+      button, input, select { font: inherit; }
+      button { color: inherit; }
+      .shell { min-height: 510px; }
+      header { display: grid; grid-template-columns: 1fr auto; gap: 12px; padding: 18px 18px 14px; border-bottom: 1px solid var(--line); }
+      .eyebrow { margin: 0 0 4px; color: var(--signal); font: 700 10px/1.2 ui-monospace, monospace; letter-spacing: .16em; text-transform: uppercase; }
+      h1 { margin: 0; font-size: 21px; line-height: 1; letter-spacing: -.04em; }
+      .service { align-self: start; display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 11px; }
+      .service-dot { inline-size: 8px; block-size: 8px; border-radius: 50%; background: #666; box-shadow: 0 0 0 3px #202227; }
+      .service[data-state="online"] .service-dot { background: var(--signal); box-shadow: 0 0 0 3px #26300e; }
+      .service[data-state="offline"] .service-dot { background: var(--danger); box-shadow: 0 0 0 3px #351b1b; }
+      main { padding: 16px 18px 18px; }
+      .label { display: block; margin-block: 0 7px; color: var(--muted); font: 700 10px/1.2 ui-monospace, monospace; letter-spacing: .12em; text-transform: uppercase; }
+      input, select { width: 100%; border: 1px solid var(--line); border-radius: 0; padding: 10px 11px; background: var(--surface); color: var(--ink); outline: none; }
+      input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
+      .field { margin-block-end: 14px; }
+      .mode-grid { display: grid; grid-template-columns: repeat(4, 1fr); margin-block-end: 14px; border: 1px solid var(--line); }
+      .mode-grid label { position: relative; min-width: 0; border-inline-end: 1px solid var(--line); cursor: pointer; }
+      .mode-grid label:last-child { border: 0; }
+      .mode-grid input { position: absolute; opacity: 0; pointer-events: none; }
+      .mode-grid span { display: grid; min-height: 68px; align-content: space-between; padding: 9px 8px; color: var(--muted); font-size: 10px; line-height: 1.1; }
+      .mode-grid b { color: inherit; font: 700 16px/1 ui-monospace, monospace; }
+      .mode-grid input:checked + span { background: var(--signal); color: #111; }
+      .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .capture { grid-column: 1 / -1; border: 0; padding: 13px 16px; background: var(--signal); color: #111; font-weight: 800; cursor: pointer; transition: transform 140ms ease, background 140ms ease; }
+      .capture:hover { background: #e5ff86; transform: translateY(-1px); }
+      .capture:disabled { cursor: progress; opacity: .55; transform: none; }
+      .secondary { border: 1px solid var(--line); padding: 9px 10px; background: transparent; color: var(--muted); cursor: pointer; font-size: 11px; }
+      .secondary:hover { color: var(--ink); border-color: #555b66; }
+      #feedback { min-height: 18px; margin: 10px 0 0; color: var(--muted); font-size: 11px; line-height: 1.45; }
+      .history { margin: 16px -18px -18px; border-top: 1px solid var(--line); }
+      .history-head { display: flex; justify-content: space-between; padding: 12px 18px 8px; }
+      .history-head .label { margin: 0; }
+      #pending { color: var(--muted); font: 10px/1.2 ui-monospace, monospace; }
+      #capture-list { max-height: 145px; margin: 0; padding: 0; overflow: auto; list-style: none; }
+      #capture-list li { display: grid; grid-template-columns: 36px 1fr auto; gap: 9px; align-items: center; padding: 9px 18px; border-top: 1px solid #1d1f23; }
+      .capture-index { color: var(--signal); font: 700 10px/1 ui-monospace, monospace; }
+      .capture-title { min-width: 0; }
+      .capture-title strong, .capture-title small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .capture-title strong { font-size: 11px; }
+      .capture-title small { margin-top: 3px; color: var(--muted); font-size: 9px; }
+      .capture-meta { color: var(--muted); font: 9px/1.2 ui-monospace, monospace; text-align: right; }
+      .empty { color: var(--muted); font-size: 11px; }
+      @media (prefers-reduced-motion: reduce) { .capture { transition: none; } }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <header>
+        <div><p class="eyebrow">Browser → Codex</p><h1>SiteRelay</h1></div>
+        <div class="service" id="service" data-state="checking"><span class="service-dot"></span><span id="service-label">Checking</span></div>
+      </header>
+      <main>
+        <div class="field">
+          <label class="label" for="capture-name">Capture name</label>
+          <input id="capture-name" maxlength="80" placeholder="e.g. Pricing hero / hover" autocomplete="off" />
+        </div>
+        <span class="label">Capture scope</span>
+        <div class="mode-grid" role="radiogroup" aria-label="Capture scope">
+          <label><input type="radio" name="mode" value="component" checked /><span><b>01</b>Component</span></label>
+          <label><input type="radio" name="mode" value="section" /><span><b>02</b>Section</span></label>
+          <label><input type="radio" name="mode" value="viewport" /><span><b>03</b>Viewport</span></label>
+          <label><input type="radio" name="mode" value="full-page" /><span><b>04</b>Full page</span></label>
+        </div>
+        <div class="field">
+          <label class="label" for="state-label">Interaction state</label>
+          <select id="state-label">
+            <option value="default">Default</option><option value="hover">Hover</option><option value="focus">Focus</option>
+            <option value="active">Active / pressed</option><option value="expanded">Expanded / open</option>
+            <option value="loading">Loading</option><option value="error">Error</option><option value="custom">Custom state</option>
+          </select>
+        </div>
+        <div class="controls">
+          <button class="capture" id="select" type="button">Start precise capture</button>
+          <button class="secondary" id="retry" type="button">Retry queue</button>
+          <button class="secondary" id="refresh" type="button">Refresh history</button>
+        </div>
+        <p id="feedback" role="status"></p>
+        <section class="history" aria-labelledby="history-title">
+          <div class="history-head"><h2 class="label" id="history-title">Recent relays</h2><span id="pending"></span></div>
+          <ol id="capture-list"><li class="empty">Loading captures…</li></ol>
+        </section>
+      </main>
+    </div>
+    <script src="popup.js"></script>
+  </body>
+</html>

@@ -1,0 +1,30 @@
+{
+  "name": "@siterelay/capture-service",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "siterelay-mcp": "./dist/mcp.js",
+    "siterelay-service": "./dist/server.js"
+  },
+  "scripts": {
+    "build": "tsc -b --clean && tsc -b",
+    "check": "tsc -b --pretty false",
+    "dev": "tsx watch src/server.ts",
+    "mcp": "node dist/mcp.js",
+    "start": "node dist/server.js",
+    "test": "vitest run src"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "latest",
+    "@siterelay/capture-schema": "workspace:*",
+    "sharp": "latest",
+    "zod": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "tsx": "latest",
+    "typescript": "latest",
+    "vitest": "latest"
+  }
+}

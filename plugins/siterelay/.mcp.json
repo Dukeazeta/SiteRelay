@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "siterelay": {
+      "command": "node",
+      "args": [
+        "C:\\Users\\azeta\\Documents\\C.O.D.E - V1\\SiteRelay\\apps\\capture-service\\dist\\mcp.js"
+      ],
+      "env": {
+        "SITERELAY_CAPTURE_DIR": "C:\\Users\\azeta\\Documents\\C.O.D.E - V1\\SiteRelay\\captures"
+      }
+    }
+  }
+}
