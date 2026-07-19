@@ -7,10 +7,11 @@ import { compareImages } from "./compare.js";
 import { downloadCaptureAssets } from "./assets.js";
 import { captureDirectory, comparisonDirectory, reconstructionDirectory } from "./config.js";
 import { reconstructCapture } from "./reconstruct.js";
+import { renderPreview } from "./render.js";
 import { CaptureStore } from "./store.js";
 
 const store = new CaptureStore(captureDirectory);
-const server = new McpServer({ name: "siterelay", version: "0.1.0" });
+const server = new McpServer({ name: "siterelay", version: "0.2.0" });
 
 server.registerTool(
   "list_captures",
@@ -40,6 +41,7 @@ server.registerTool(
       viewport: capture.viewport,
       captureMode: capture.captureMode,
       stateLabel: capture.stateLabel,
+      assetAuthorization: capture.assetAuthorization,
       counts: { nodes: capture.nodes.length, fonts: capture.fonts.length, assets: capture.assets.length, animations: capture.animations.length },
       warnings: capture.warnings,
       limitations: capture.limitations,
@@ -150,6 +152,27 @@ server.registerTool(
     const output = join(comparisonDirectory, `${id}-${Date.now()}`);
     const result = await compareImages(await store.screenshot(id), candidatePath, output);
     return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+  },
+);
+
+server.registerTool(
+  "verify_reconstruction",
+  {
+    description: "Generate, headlessly render, and pixel-compare the raw SiteRelay reconstruction against its source screenshot.",
+    inputSchema: { id: z.string() },
+  },
+  async ({ id }) => {
+    const capture = await store.get(id);
+    const reconstruction = await reconstructCapture(capture, reconstructionDirectory);
+    const output = join(comparisonDirectory, `${id}-${Date.now()}`);
+    const render = await renderPreview(
+      reconstruction.previewPath,
+      output,
+      Math.max(1, Math.round(capture.selection.rect.width)),
+      Math.max(1, Math.round(capture.selection.rect.height)),
+    );
+    const comparison = await compareImages(await store.screenshot(id), render.screenshotPath, output);
+    return { content: [{ type: "text", text: JSON.stringify({ reconstruction, render, comparison }, null, 2) }] };
   },
 );
 

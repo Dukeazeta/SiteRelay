@@ -7,11 +7,12 @@ interface CaptureOptions {
   captureName?: string;
   mode: SiteRelayCapture["captureMode"];
   stateLabel: string;
+  assetAuthorization: SiteRelayCapture["assetAuthorization"];
 }
 
 let selecting = false;
 let hoveredElement: Element | null = null;
-let activeOptions: CaptureOptions = { mode: "component", stateLabel: "default" };
+let activeOptions: CaptureOptions = { mode: "component", stateLabel: "default", assetAuthorization: "metadata-only" };
 
 function toRect(rect: DOMRect) {
   return {
@@ -330,6 +331,7 @@ function buildCapture(root: Element): SiteRelayCapture {
     captureName: activeOptions.captureName,
     captureMode: activeOptions.mode,
     stateLabel: activeOptions.stateLabel,
+    assetAuthorization: activeOptions.assetAuthorization,
     groupId: activeOptions.captureName
       ? `${location.hostname}:${activeOptions.captureName.toLocaleLowerCase().replace(/[^a-z0-9]+/g, "-")}`
       : undefined,
@@ -449,6 +451,7 @@ function startSelection(options?: Partial<CaptureOptions>) {
     captureName: options?.captureName,
     mode: options?.mode ?? "component",
     stateLabel: options?.stateLabel || "default",
+    assetAuthorization: options?.assetAuthorization ?? "metadata-only",
   };
   if (activeOptions.mode === "full-page" || activeOptions.mode === "viewport") {
     hoveredElement = activeOptions.mode === "full-page" ? document.documentElement : document.body;

@@ -8,6 +8,7 @@ import { describe, expect, it } from "vitest";
 
 import { compareImages } from "./compare.js";
 import { reconstructCapture } from "./reconstruct.js";
+import { renderPreview } from "./render.js";
 
 const capture = parseCapture({
   schemaVersion: 2,
@@ -36,4 +37,13 @@ describe("SiteRelay engines", () => {
     const result = await compareImages(image, candidatePath, join(directory, "output"));
     expect(result.mismatchPercentage).toBe(0);
   });
+
+  it("renders the generated preview in headless Chrome", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "siterelay-render-"));
+    const reconstruction = await reconstructCapture(capture, directory);
+    const rendered = await renderPreview(reconstruction.previewPath, join(directory, "rendered"), 320, 240);
+    const metadata = await sharp(rendered.screenshotPath).metadata();
+    expect(metadata.width).toBe(320);
+    expect(metadata.height).toBe(240);
+  }, 40_000);
 });

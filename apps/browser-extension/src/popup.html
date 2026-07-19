@@ -52,14 +52,19 @@
       .history-head .label { margin: 0; }
       #pending { color: var(--muted); font: 10px/1.2 ui-monospace, monospace; }
       #capture-list { max-height: 145px; margin: 0; padding: 0; overflow: auto; list-style: none; }
-      #capture-list li { display: grid; grid-template-columns: 36px 1fr auto; gap: 9px; align-items: center; padding: 9px 18px; border-top: 1px solid #1d1f23; }
+      #capture-list li { display: grid; grid-template-columns: 30px 1fr auto auto; gap: 9px; align-items: center; padding: 9px 18px; border-top: 1px solid #1d1f23; }
       .capture-index { color: var(--signal); font: 700 10px/1 ui-monospace, monospace; }
       .capture-title { min-width: 0; }
       .capture-title strong, .capture-title small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
       .capture-title strong { font-size: 11px; }
       .capture-title small { margin-top: 3px; color: var(--muted); font-size: 9px; }
       .capture-meta { color: var(--muted); font: 9px/1.2 ui-monospace, monospace; text-align: right; }
+      .capture-delete { border: 0; padding: 3px; background: transparent; color: #6f747d; cursor: pointer; font: 14px/1 monospace; }
+      .capture-delete:hover { color: var(--danger); }
       .empty { color: var(--muted); font-size: 11px; }
+      .permission { display: flex; gap: 9px; align-items: flex-start; margin: -2px 0 14px; color: var(--muted); font-size: 10px; line-height: 1.4; }
+      .permission input { flex: 0 0 auto; width: 14px; height: 14px; margin: 1px 0 0; accent-color: var(--signal); }
+      .local-note { margin: 13px 0 0; color: #6f747d; font: 9px/1.4 ui-monospace, monospace; text-align: center; }
       @media (prefers-reduced-motion: reduce) { .capture { transition: none; } }
     </style>
   </head>
@@ -74,6 +79,7 @@
           <label class="label" for="capture-name">Capture name</label>
           <input id="capture-name" maxlength="80" placeholder="e.g. Pricing hero / hover" autocomplete="off" />
         </div>
+        <label class="permission"><input id="asset-authorization" type="checkbox" />I confirm I am authorized to reuse this page’s downloadable fonts and assets. Leave unchecked for metadata-only capture.</label>
         <span class="label">Capture scope</span>
         <div class="mode-grid" role="radiogroup" aria-label="Capture scope">
           <label><input type="radio" name="mode" value="component" checked /><span><b>01</b>Component</span></label>
@@ -95,6 +101,7 @@
           <button class="secondary" id="refresh" type="button">Refresh history</button>
         </div>
         <p id="feedback" role="status"></p>
+        <p class="local-note">LOCAL ONLY · AUTHENTICATED BRIDGE · NO CLOUD UPLOAD</p>
         <section class="history" aria-labelledby="history-title">
           <div class="history-head"><h2 class="label" id="history-title">Recent relays</h2><span id="pending"></span></div>
           <ol id="capture-list"><li class="empty">Loading captures…</li></ol>

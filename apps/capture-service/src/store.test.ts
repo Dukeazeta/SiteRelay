@@ -62,4 +62,12 @@ describe("CaptureStore", () => {
     const store = new CaptureStore(directory);
     await expect(store.get("../secret")).rejects.toThrow("Invalid capture ID");
   });
+
+  it("deletes only the requested validated capture", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "siterelay-test-"));
+    const store = new CaptureStore(directory);
+    await store.save(capture("capture-delete"));
+    await store.remove("capture-delete");
+    expect(await store.list()).toEqual([]);
+  });
 });

@@ -1,6 +1,6 @@
 {
   "name": "siterelay",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Inspect browser-captured components, typography, assets, animations, and pages in Codex.",
   "author": {
     "name": "SiteRelay"
@@ -9,10 +9,15 @@
   "interface": {
     "displayName": "SiteRelay",
     "shortDescription": "Bring exact browser captures into Codex.",
-    "longDescription": "SiteRelay connects Codex to locally captured web components, including rendered DOM, computed styles, typography, assets, animations, and screenshots.",
+    "longDescription": "SiteRelay securely connects Codex to locally captured components and pages, including rendered DOM, computed styles, responsive screenshots, typography, assets, interaction states, animations, reconstruction, and visual-difference verification.",
     "developerName": "SiteRelay",
     "category": "Developer Tools",
-    "capabilities": ["MCP tools", "Browser capture inspection"],
+    "capabilities": [
+      "MCP tools",
+      "Browser capture inspection",
+      "React reconstruction",
+      "Visual verification"
+    ],
     "defaultPrompt": "Inspect my latest SiteRelay browser capture and explain what was captured before making changes."
   },
   "mcpServers": "./.mcp.json"

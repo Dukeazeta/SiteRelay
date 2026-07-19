@@ -1,7 +1,12 @@
-import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { promisify } from "node:util";
+import { gzip, gunzip } from "node:zlib";
 
 import { captureSchema, type SiteRelayCapture } from "@siterelay/capture-schema";
+
+const gzipAsync = promisify(gzip);
+const gunzipAsync = promisify(gunzip);
 
 export interface CaptureSummary {
   id: string;
@@ -15,10 +20,13 @@ export interface CaptureSummary {
   animationCount: number;
   screenshotPath?: string;
   fullPageScreenshotPath?: string;
+  responsiveProfiles: Array<"mobile" | "tablet" | "desktop">;
   captureName?: string;
   captureMode: SiteRelayCapture["captureMode"];
   stateLabel: string;
+  assetAuthorization: SiteRelayCapture["assetAuthorization"];
   byteSize: number;
+  storedByteSize: number;
   limitations: string[];
   warnings: string[];
 }
@@ -66,8 +74,16 @@ export class CaptureStore {
       responsiveScreenshots: capture.responsiveScreenshots.map(({ screenshotDataUrl: _data, ...metadata }) => metadata),
     };
     const serializedCapture = `${JSON.stringify(storedCapture, null, 2)}\n`;
-    await writeFile(join(directory, "capture.json"), serializedCapture, "utf8");
-    const summary = this.toSummary(storedCapture, Buffer.byteLength(serializedCapture), screenshotPath, fullPageScreenshotPath);
+    const serializedBytes = Buffer.from(serializedCapture, "utf8");
+    const compressedCapture = await gzipAsync(serializedBytes, { level: 9 });
+    await writeFile(join(directory, "capture.json.gz"), compressedCapture);
+    const summary = this.toSummary(
+      storedCapture,
+      serializedBytes.length,
+      compressedCapture.length,
+      screenshotPath,
+      fullPageScreenshotPath,
+    );
     await writeFile(join(directory, "summary.json"), `${JSON.stringify(summary, null, 2)}\n`, "utf8");
     return summary;
   }
@@ -95,8 +111,18 @@ export class CaptureStore {
 
   async get(id: string): Promise<SiteRelayCapture> {
     this.assertSafeId(id);
-    const raw = await readFile(join(this.rootDirectory, id, "capture.json"), "utf8");
-    return captureSchema.parse(JSON.parse(raw));
+    try {
+      const compressed = await readFile(join(this.rootDirectory, id, "capture.json.gz"));
+      return captureSchema.parse(JSON.parse((await gunzipAsync(compressed)).toString("utf8")));
+    } catch (error) {
+      const fallbackPath = join(this.rootDirectory, id, "capture.json");
+      try {
+        const raw = await readFile(fallbackPath, "utf8");
+        return captureSchema.parse(JSON.parse(raw));
+      } catch {
+        throw error;
+      }
+    }
   }
 
   async screenshot(id: string, kind: "selection" | "viewport" = "selection"): Promise<Buffer> {
@@ -130,6 +156,11 @@ export class CaptureStore {
     ).slice(0, 100);
   }
 
+  async remove(id: string): Promise<void> {
+    this.assertSafeId(id);
+    await rm(join(this.rootDirectory, id), { recursive: true, force: false });
+  }
+
   private assertSafeId(id: string): void {
     if (!/^[a-zA-Z0-9-]+$/.test(id)) throw new Error("Invalid capture ID");
   }
@@ -137,6 +168,7 @@ export class CaptureStore {
   private toSummary(
     capture: SiteRelayCapture,
     byteSize: number,
+    storedByteSize: number,
     screenshotPath?: string,
     fullPageScreenshotPath?: string,
   ): CaptureSummary {
@@ -152,10 +184,13 @@ export class CaptureStore {
       animationCount: capture.animations.length,
       screenshotPath,
       fullPageScreenshotPath,
+      responsiveProfiles: capture.responsiveScreenshots.map((screenshot) => screenshot.profile),
       captureName: capture.captureName,
       captureMode: capture.captureMode,
       stateLabel: capture.stateLabel,
+      assetAuthorization: capture.assetAuthorization,
       byteSize,
+      storedByteSize,
       limitations: capture.limitations,
       warnings: capture.warnings,
     };

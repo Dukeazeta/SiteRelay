@@ -73,7 +73,17 @@ function renderCaptures(captures: CaptureListItem[]): void {
     const meta = document.createElement("span");
     meta.className = "capture-meta";
     meta.textContent = `${capture.captureMode ?? "component"}\n${capture.nodeCount} nodes`;
-    item.append(indexElement, title, meta);
+    const remove = document.createElement("button");
+    remove.className = "capture-delete";
+    remove.type = "button";
+    remove.setAttribute("aria-label", `Delete ${strong.textContent}`);
+    remove.textContent = "×";
+    remove.addEventListener("click", async () => {
+      if (!window.confirm(`Delete the local capture “${strong.textContent}”? This cannot be undone.`)) return;
+      await sendMessage({ type: "SITERELAY_DELETE_CAPTURE", id: capture.id });
+      await refreshStatus();
+    });
+    item.append(indexElement, title, meta, remove);
     captureList.append(item);
   });
 }
@@ -109,6 +119,9 @@ button?.addEventListener("click", async () => {
       captureName: captureName?.value.trim() || undefined,
       mode,
       stateLabel: stateLabel?.value || "default",
+      assetAuthorization: document.querySelector<HTMLInputElement>("#asset-authorization")?.checked
+        ? "user-authorized"
+        : "metadata-only",
     });
     window.close();
   } catch (error) {

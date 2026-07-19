@@ -62,7 +62,10 @@ pnpm.cmd dev:service
 ```
 
 The capture service listens only on `127.0.0.1:4319` by default. Captures are
-stored in the local `captures` directory, which is excluded from Git.
+stored in the local `captures` directory, which is excluded from Git. Capture
+writes require the private token generated in `.siterelay-token`; ordinary web
+pages cannot write to the service, and cross-origin requests are limited to
+Chrome extension origins.
 
 On Windows, `scripts/start-capture-service.ps1` starts the service only when it
 is not already running. The development installation registers this launcher at
@@ -80,16 +83,39 @@ To load the development extension in Chrome or Edge:
 The local Codex plugin lives in `plugins/siterelay`. Its MCP configuration reads
 the same capture directory used by the browser service.
 
-## Current vertical slice
+## Current capabilities
 
 The first implemented slice can:
 
-- select a rendered element with an on-page inspection outline
-- collect the selected DOM and up to 2,000 descendants
-- capture computed CSS, layout rectangles, typography, visible assets, and Web Animations data
-- take a screenshot of the visible browser tab
-- validate and persist the result locally
-- list and read captures, including screenshots, through SiteRelay MCP
+- select a component or semantic section with an on-page inspection outline
+- capture a viewport or complete page without element selection
+- collect DOM and up to 2,000 descendants, computed CSS, geometry, pseudo-elements,
+  accessibility metadata, open Shadow DOM, stylesheet rules, and design tokens
+- capture exact component crops, viewport screenshots, true full-page screenshots,
+  and mobile/tablet/desktop full-page references
+- record named interaction states and group related states by capture name
+- collect font sources, variable/font-feature settings, responsive images, masks,
+  border images, inline SVG references, and Web Animations timing/keyframes
+- authenticate extension-to-service writes and retry up to 20 captures locally
+  when the service is unavailable
+- inspect service health, queue state, and recent captures in the extension popup
+- query compact summaries, nodes, typography, assets, animations, tokens, and
+  stylesheet evidence without loading an entire capture into Codex
+- generate a raw fidelity-first React/CSS reconstruction and standalone preview
+- render reconstructions in headless Chrome and generate pixel-difference heatmaps
+- download assets only after explicit authorization, with provenance, size, MIME,
+  and SHA-256 records
 
-Responsive recapture, interaction-state orchestration, asset downloading,
-reconstruction, and pixel-difference verification are the next engineering stages.
+## Browser boundaries
+
+- Closed Shadow DOM and protected cross-origin iframe contents are not inspectable.
+- Canvas and WebGL pixels are preserved in screenshots, but proprietary drawing
+  code and server-side logic are not available to the browser.
+- Responsive screenshots show layout at three widths; detailed computed-node
+  styles describe the viewport in which the user made the capture.
+- Font source discovery is limited by stylesheet CORS. A rendered font may be
+  identifiable even when its protected source file is not readable.
+- Full-page capture temporarily attaches Chrome's debugging protocol and detaches
+  immediately afterward. Chrome may display a short-lived debugging notice.
+- Generated React is deliberately a raw baseline using captured HTML. It must be
+  reviewed for semantics, licensing, and maintainability after visual fidelity is proven.

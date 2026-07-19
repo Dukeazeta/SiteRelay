@@ -15,7 +15,7 @@ function respond(request: IncomingMessage, response: ServerResponse, status: num
   const origin = allowedOrigin(request);
   response.writeHead(status, {
     "access-control-allow-headers": "content-type",
-    "access-control-allow-methods": "GET,POST,OPTIONS",
+    "access-control-allow-methods": "DELETE,GET,POST,OPTIONS",
     ...(origin ? { "access-control-allow-origin": origin, vary: "origin" } : {}),
     "content-type": "application/json; charset=utf-8",
   });
@@ -52,6 +52,11 @@ const server = createServer(async (request, response) => {
     if (request.method === "POST" && request.url === "/api/captures") {
       const summary = await store.save(await readJson(request));
       return respond(request, response, 201, { capture: summary });
+    }
+    const captureMatch = /^\/api\/captures\/([a-zA-Z0-9-]+)$/.exec(request.url ?? "");
+    if (request.method === "DELETE" && captureMatch?.[1]) {
+      await store.remove(captureMatch[1]);
+      return respond(request, response, 200, { ok: true, deleted: captureMatch[1] });
     }
     return respond(request, response, 404, { error: "Not found" });
   } catch (error) {

@@ -56,10 +56,19 @@ export async function reconstructCapture(capture: SiteRelayCapture, rootDirector
   const escapedHtml = JSON.stringify(capture.selection.outerHTML);
   const component = `import "./siterelay.css";\n\nexport function ${name}() {\n  return (\n    <div\n      className="siterelay-stage"\n      data-siterelay-capture=${JSON.stringify(capture.id)}\n      dangerouslySetInnerHTML={{ __html: ${escapedHtml} }}\n    />\n  );\n}\n`;
   const readme = `# ${name}\n\nGenerated from SiteRelay capture \`${capture.id}\`.\n\nThis is the raw fidelity pass. It intentionally preserves the captured HTML through \`dangerouslySetInnerHTML\`. Review the source and asset licensing, then refactor it into semantic React components only after visual comparison passes.\n`;
+  const css = `${cssForCapture(capture)}\n`;
+  const preview = `<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8" />\n<meta name="viewport" content="width=device-width, initial-scale=1" />\n<base href=${JSON.stringify(capture.source.url)} />\n<style>html,body{margin:0;min-height:100%;}.siterelay-stage{min-height:100vh;}\n${css}</style>\n</head>\n<body><div class="siterelay-stage">${capture.selection.outerHTML}</div></body>\n</html>\n`;
   await Promise.all([
     writeFile(join(directory, `${name}.tsx`), component, "utf8"),
-    writeFile(join(directory, "siterelay.css"), `${cssForCapture(capture)}\n`, "utf8"),
+    writeFile(join(directory, "siterelay.css"), css, "utf8"),
+    writeFile(join(directory, "preview.html"), preview, "utf8"),
     writeFile(join(directory, "README.md"), readme, "utf8"),
   ]);
-  return { directory, componentPath: join(directory, `${name}.tsx`), cssPath: join(directory, "siterelay.css"), name };
+  return {
+    directory,
+    componentPath: join(directory, `${name}.tsx`),
+    cssPath: join(directory, "siterelay.css"),
+    previewPath: join(directory, "preview.html"),
+    name,
+  };
 }

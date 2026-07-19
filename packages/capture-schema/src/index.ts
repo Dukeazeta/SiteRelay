@@ -125,6 +125,7 @@ export const captureSchema = z.object({
   captureName: z.string().optional(),
   captureMode: z.enum(["component", "section", "viewport", "full-page"]).default("component"),
   stateLabel: z.string().default("default"),
+  assetAuthorization: z.enum(["metadata-only", "user-authorized"]).default("metadata-only"),
   groupId: z.string().optional(),
   designTokens: designTokenSchema.optional(),
   states: z.array(captureStateSchema).default([]),

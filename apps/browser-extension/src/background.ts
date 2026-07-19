@@ -139,6 +139,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message?.type !== "SITERELAY_CAPTURE") return false;
 
   void (async () => {
+    let captureToQueue: unknown = message.capture;
     try {
       const screenshotOptions = { format: "png" as const };
       const screenshotDataUrl = sender.tab?.windowId === undefined
@@ -154,9 +155,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         fullPageScreenshotDataUrl: message.capture.captureMode === "viewport" ? screenshotDataUrl : undefined,
         ...fullPageReferences,
       });
+      captureToQueue = capture;
       sendResponse({ ok: true, result: await postCapture(capture) });
     } catch (error) {
-      const queued = await queueCapture(message.capture);
+      const queued = await queueCapture(captureToQueue);
       sendResponse({
         ok: true,
         queued: true,
@@ -170,7 +172,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  if (!["SITERELAY_SERVICE_STATUS", "SITERELAY_LIST_CAPTURES", "SITERELAY_RETRY_QUEUE"].includes(message?.type)) {
+  if (!["SITERELAY_SERVICE_STATUS", "SITERELAY_LIST_CAPTURES", "SITERELAY_RETRY_QUEUE", "SITERELAY_DELETE_CAPTURE"].includes(message?.type)) {
     return false;
   }
 
@@ -179,6 +181,11 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       if (message.type === "SITERELAY_RETRY_QUEUE") {
         const remaining = await flushCaptureQueue();
         sendResponse({ ok: remaining === 0, data: { pendingCount: remaining } });
+        return;
+      }
+      if (message.type === "SITERELAY_DELETE_CAPTURE") {
+        const response = await serviceRequest(`/api/captures/${encodeURIComponent(String(message.id))}`, { method: "DELETE" });
+        sendResponse({ ok: response.ok, data: await response.json() });
         return;
       }
       const path = message.type === "SITERELAY_SERVICE_STATUS" ? "/health" : "/api/captures";

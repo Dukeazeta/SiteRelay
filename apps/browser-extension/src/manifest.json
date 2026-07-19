@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "SiteRelay Capture",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Select a rendered web component and relay its structure, styling, typography, assets, animation, and screenshot to Codex.",
   "permissions": ["activeTab", "alarms", "debugger", "scripting", "storage", "tabs"],
   "host_permissions": ["http://127.0.0.1:4319/*"],
