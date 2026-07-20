@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="An original SiteRelay showcase for authorized browser capture and visual verification." />
+    <title>SiteRelay — Browser truth, delivered</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="showcase.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header">
+      <a class="wordmark" href="#top" aria-label="SiteRelay home"><span>SR</span> SiteRelay</a>
+      <p class="status"><i aria-hidden="true"></i> Local bridge ready</p>
+      <nav aria-label="Showcase navigation">
+        <a href="#proof">Proof</a><a href="#anatomy">Anatomy</a><a href="#capture">Capture target</a>
+      </nav>
+    </header>
+
+    <main id="main">
+      <section class="hero" id="top" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="kicker">Browser evidence / Codex context</p>
+          <h1 id="hero-title">Show Codex<br /><em>what you mean.</em></h1>
+          <p class="hero-lede">SiteRelay packages the rendered truth of an interface—structure, type, motion, assets, and responsive evidence—then places it within reach of your coding agent.</p>
+          <a class="text-link" href="#capture">Inspect the capture target <span aria-hidden="true">↘</span></a>
+        </div>
+        <div class="relay-visual" aria-label="A visual relay from browser evidence to Codex">
+          <div class="orb orb-source"><span>01</span><strong>Browser</strong><small>Rendered truth</small></div>
+          <svg viewBox="0 0 640 260" role="img" aria-label="Animated signal path connecting browser and Codex">
+            <path class="rail" d="M88 130 C190 16 449 245 552 130" />
+            <path class="pulse" d="M88 130 C190 16 449 245 552 130" />
+          </svg>
+          <div class="orb orb-target"><span>02</span><strong>Codex</strong><small>Exact context</small></div>
+          <p class="packet">DOM · CSS · TYPE · MOTION · PIXELS</p>
+        </div>
+      </section>
+
+      <section class="proof" id="proof" aria-label="Product evidence">
+        <p>One deliberate loop</p>
+        <ol>
+          <li><span>01</span>Select</li><li><span>02</span>Relay</li><li><span>03</span>Rebuild</li><li><span>04</span>Verify</li>
+        </ol>
+      </section>
+
+      <section class="anatomy" id="anatomy" aria-labelledby="anatomy-title">
+        <div class="section-intro"><p class="kicker">A capture with depth</p><h2 id="anatomy-title">Not another screenshot.</h2></div>
+        <div class="evidence-stack">
+          <article><span>Layer 04</span><h3>Pixels</h3><p>Exact crops and responsive reference frames anchor visual comparison.</p></article>
+          <article><span>Layer 03</span><h3>Motion</h3><p>Timings, keyframes, easing, and named interaction states retain behavior.</p></article>
+          <article><span>Layer 02</span><h3>Style</h3><p>Computed CSS, tokens, typography, pseudo-elements, and geometry reveal appearance.</p></article>
+          <article><span>Layer 01</span><h3>Structure</h3><p>DOM, semantics, accessibility metadata, and open shadow roots preserve meaning.</p></article>
+        </div>
+      </section>
+
+      <section class="capture-lab" id="capture" aria-labelledby="capture-title">
+        <div class="lab-copy">
+          <p class="kicker">Official authorized demo target</p>
+          <h2 id="capture-title">Capture this signal.</h2>
+          <p>This component belongs to SiteRelay. Toggle its state, select it with the extension, and compare what comes back.</p>
+          <button id="state-toggle" type="button" aria-pressed="false">Activate hover state</button>
+        </div>
+
+        <article class="signal-card" data-capture-target="signal-card">
+          <div class="signal-card__top"><span class="signal-card__index">SR / 004</span><span class="signal-card__live"><i></i>Live evidence</span></div>
+          <div class="glyph" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+          <div class="signal-card__content">
+            <p>Selected component</p>
+            <h3>Signal<br />Card</h3>
+            <dl><div><dt>Nodes</dt><dd>24</dd></div><div><dt>States</dt><dd>02</dd></div><div><dt>Motion</dt><dd>640ms</dd></div></dl>
+          </div>
+          <div class="signal-card__footer"><span>Ready for relay</span><b aria-hidden="true">↗</b></div>
+        </article>
+      </section>
+
+      <section class="resolution">
+        <p class="kicker">The browser already knows</p>
+        <h2>Relay the evidence.<br /><em>Measure the difference.</em></h2>
+        <p>Original work. Local by default. Honest about every boundary.</p>
+      </section>
+    </main>
+
+    <footer><span>SiteRelay / Build Week 2026</span><span>Developer tools</span><span>Authorized capture only</span></footer>
+  </body>
+</html>

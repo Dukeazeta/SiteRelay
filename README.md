@@ -6,6 +6,46 @@ SiteRelay is a browser-to-Codex capture system for inspecting and reconstructing
 web components, sections, typography, animations, and complete pages with
 extremely high visual fidelity.
 
+SiteRelay is intended only for interfaces you own, are licensed to use, or have
+permission to reproduce. Read [AUTHORIZED_USE.md](AUTHORIZED_USE.md) before
+capturing third-party material.
+
+## Install SiteRelay
+
+SiteRelay supports Windows 10+ and macOS 13+, with Chrome or Edge 120+, Node.js
+20+, pnpm 11, and Codex desktop or CLI.
+
+Windows:
+
+```powershell
+.\install.ps1
+```
+
+macOS:
+
+```bash
+chmod +x install.sh uninstall.sh
+./install.sh
+```
+
+The installer generates a local authentication token, registers the capture
+service at sign-in, creates a portable local Codex marketplace, and prints the
+exact unpacked-extension folder to load. See
+[docs/INSTALLATION.md](docs/INSTALLATION.md) for verification, troubleshooting,
+and uninstall instructions.
+
+The Chrome or Edge extension directory is:
+
+```text
+apps/browser-extension/dist
+```
+
+## Build Week submission
+
+SiteRelay is being prepared for OpenAI Build Week in the **Developer Tools**
+track. The submission copy, evidence checklist, and under-three-minute demo plan
+live in [docs/DEVPOST_SUBMISSION.md](docs/DEVPOST_SUBMISSION.md).
+
 ## Product standard
 
 “Looks similar” is not good enough. SiteRelay should preserve and verify:
@@ -24,7 +64,7 @@ Every generated implementation should be compared with the source using
 repeatable screenshots and visual-difference measurements. Differences must be
 reported honestly rather than hidden behind a single confidence score.
 
-## Planned system
+## System
 
 1. **Browser extension** — selects and captures an element, section, or page.
 2. **Local capture service** — stores captures and coordinates browser data.
@@ -42,7 +82,7 @@ reported honestly rather than hidden behind a single confidence score.
 - Never bypass authentication, access controls, anti-bot systems, or licensing restrictions.
 - Separate faithful capture from later adaptation to a different brand or product.
 
-## Initial milestone
+## Core product loop
 
 The first milestone is an end-to-end vertical slice:
 
@@ -60,6 +100,15 @@ pnpm.cmd build
 pnpm.cmd test
 pnpm.cmd dev:service
 ```
+
+Run the original authorized showcase in a second terminal:
+
+```powershell
+pnpm.cmd dev:showcase
+```
+
+Architecture, development conventions, and the complete documentation index are
+available in [docs/README.md](docs/README.md).
 
 The capture service listens only on `127.0.0.1:4319` by default. Captures are
 stored in the local `captures` directory, which is excluded from Git. Capture

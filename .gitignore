@@ -1,12 +1,22 @@
+# Dependencies and compiler output
 node_modules/
 dist/
 .turbo/
 coverage/
 *.tsbuildinfo
+
+# SiteRelay local runtime data
+.siterelay-token
+captures/
+comparisons/
+reconstructions/
+.logs/
+*.log
+
+# Generated QA and release artifacts
+.inspection/
+release/
+
+# Operating-system metadata
 .DS_Store
 Thumbs.db
-captures/
-.siterelay-token
-reconstructions/
-comparisons/
-*.log

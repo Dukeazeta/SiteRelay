@@ -2,15 +2,7 @@
   "mcpServers": {
     "siterelay": {
       "command": "node",
-      "args": [
-        "C:\\Users\\azeta\\Documents\\C.O.D.E - V1\\SiteRelay\\apps\\capture-service\\dist\\mcp.js"
-      ],
-      "env": {
-        "SITERELAY_CAPTURE_DIR": "C:\\Users\\azeta\\Documents\\C.O.D.E - V1\\SiteRelay\\captures",
-        "SITERELAY_RECONSTRUCTION_DIR": "C:\\Users\\azeta\\Documents\\C.O.D.E - V1\\SiteRelay\\reconstructions",
-        "SITERELAY_COMPARISON_DIR": "C:\\Users\\azeta\\Documents\\C.O.D.E - V1\\SiteRelay\\comparisons",
-        "SITERELAY_TOKEN_FILE": "C:\\Users\\azeta\\Documents\\C.O.D.E - V1\\SiteRelay\\.siterelay-token"
-      }
+      "args": ["scripts/mcp-launcher.cjs"]
     }
   }
 }

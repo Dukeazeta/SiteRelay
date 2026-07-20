@@ -3,6 +3,14 @@ import { captureSchema } from "@siterelay/capture-schema";
 declare const __SITERELAY_TOKEN__: string;
 const PENDING_CAPTURE_KEY = "siterelayPendingCaptures";
 
+chrome.runtime.onInstalled.addListener(() => {
+  void chrome.alarms.create("siterelay-health-check", { periodInMinutes: 5 });
+});
+
+chrome.runtime.onStartup.addListener(() => {
+  void chrome.alarms.create("siterelay-health-check", { periodInMinutes: 5 });
+});
+
 async function serviceRequest(path: string, init: RequestInit = {}): Promise<Response> {
   return fetch(`http://127.0.0.1:4319${path}`, {
     ...init,
@@ -52,6 +60,7 @@ async function flushCaptureQueue(): Promise<number> {
 
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === "siterelay-retry") void flushCaptureQueue();
+  if (alarm.name === "siterelay-health-check") void serviceRequest("/health").catch(() => undefined);
 });
 
 async function blobToDataUrl(blob: Blob): Promise<string> {

@@ -1,5 +1,7 @@
 import type { SiteRelayCapture } from "@siterelay/capture-schema";
 
+import { isInspectableUrl, readableError, sourceHostname } from "./popup-utils.js";
+
 interface CaptureListItem {
   id: string;
   captureName?: string;
@@ -22,15 +24,6 @@ const stateLabel = document.querySelector<HTMLSelectElement>("#state-label");
 
 function sendMessage<T>(message: unknown): Promise<T> {
   return chrome.runtime.sendMessage(message) as Promise<T>;
-}
-
-function isInspectableUrl(url: string | undefined): boolean {
-  if (!url) return false;
-  try {
-    return ["http:", "https:"].includes(new URL(url).protocol);
-  } catch {
-    return false;
-  }
 }
 
 async function startInspector(tabId: number, options: object): Promise<void> {
@@ -59,7 +52,7 @@ function renderCaptures(captures: CaptureListItem[]): void {
   }
   captures.slice(0, 6).forEach((capture, index) => {
     const item = document.createElement("li");
-    const sourceHost = (() => { try { return new URL(capture.sourceUrl).hostname; } catch { return "unknown source"; } })();
+    const sourceHost = sourceHostname(capture.sourceUrl);
     const indexElement = document.createElement("span");
     indexElement.className = "capture-index";
     indexElement.textContent = String(index + 1).padStart(2, "0");
@@ -89,18 +82,27 @@ function renderCaptures(captures: CaptureListItem[]): void {
 }
 
 async function refreshStatus(): Promise<void> {
-  const status = await sendMessage<{ ok: boolean; pendingCount?: number }>({ type: "SITERELAY_SERVICE_STATUS" });
-  setServiceState(status.ok ? "online" : "offline", status.ok ? "Service online" : "Service offline");
-  if (pendingLabel) pendingLabel.textContent = status.pendingCount ? `${status.pendingCount} queued` : "queue clear";
+  try {
+    const status = await sendMessage<{ ok: boolean; pendingCount?: number }>({ type: "SITERELAY_SERVICE_STATUS" });
+    setServiceState(status.ok ? "online" : "offline", status.ok ? "Service online" : "Service offline");
+    if (pendingLabel) pendingLabel.textContent = status.pendingCount ? `${status.pendingCount} queued` : "queue clear";
 
-  if (!status.ok) {
+    if (!status.ok) {
+      renderCaptures([]);
+      if (feedback) feedback.textContent = "The local service is offline. Start SiteRelay, then refresh.";
+      return;
+    }
+    const history = await sendMessage<{ ok: boolean; data?: { captures?: CaptureListItem[] }; pendingCount?: number }>({
+      type: "SITERELAY_LIST_CAPTURES",
+    });
+    renderCaptures(history.data?.captures ?? []);
+  } catch (error) {
+    setServiceState("offline", "Extension worker unavailable");
     renderCaptures([]);
-    return;
+    if (feedback) {
+      feedback.textContent = `SiteRelay could not contact its extension worker. Reload the extension once. ${readableError(error, "")}`.trim();
+    }
   }
-  const history = await sendMessage<{ ok: boolean; data?: { captures?: CaptureListItem[] }; pendingCount?: number }>({
-    type: "SITERELAY_LIST_CAPTURES",
-  });
-  renderCaptures(history.data?.captures ?? []);
 }
 
 button?.addEventListener("click", async () => {
@@ -125,7 +127,7 @@ button?.addEventListener("click", async () => {
     });
     window.close();
   } catch (error) {
-    feedback.textContent = `Inspector could not start: ${error instanceof Error ? error.message : "Browser injection was refused."}`;
+    feedback.textContent = `Inspector could not start: ${readableError(error, "Browser injection was refused.")}`;
     button.disabled = false;
   }
 });

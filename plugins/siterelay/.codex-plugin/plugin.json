@@ -1,6 +1,6 @@
 {
   "name": "siterelay",
-  "version": "0.2.0+codex.20260719144256",
+  "version": "0.2.0+codex.20260720171034",
   "description": "Inspect browser-captured components, typography, assets, animations, and pages in Codex.",
   "author": {
     "name": "SiteRelay"

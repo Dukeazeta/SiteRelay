@@ -7,6 +7,10 @@
     "build": "pnpm -r build",
     "check": "pnpm -r check",
     "dev:service": "pnpm --filter @siterelay/capture-service dev",
+    "dev:showcase": "pnpm --filter @siterelay/showcase dev",
+    "health": "node scripts/health-check.mjs",
+    "install:siterelay": "node scripts/install.mjs",
+    "package:release": "node scripts/package-release.mjs",
     "test": "pnpm -r test"
   },
   "devDependencies": {
